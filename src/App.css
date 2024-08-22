@@ -1445,6 +1445,10 @@ blockquote {
   quotes: "\201C" "\201D" "\2018" "\2019";
 }
 
+a {
+  color: #ff3860;
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 .render::-webkit-scrollbar {
   display: none;

@@ -1,13 +1,27 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { FaFolderOpen, FaPlus, FaSave } from "react-icons/fa";
 import { EditorContext } from "./provider/EditorProvider";
 import { writeTextFile, BaseDirectory, readTextFile } from "@tauri-apps/api/fs";
 import { save, open, message } from "@tauri-apps/api/dialog";
+import { getMatches } from "@tauri-apps/api/cli";
 
 const Controls = ({ fileName, changeFileName }) => {
   const [content, setContent] = useContext(EditorContext);
+
+  useEffect(() => {
+    match();
+  }, []);
+
+  const match = async () => {
+    const matches = await getMatches();
+    if (matches.args.source.value != "") {
+      changeFileName(matches.args.source.value);
+    }
+  };
+
   const handleSave = async () => {
     const filePath = await save({
+      defaultPath: fileName,
       title: "Save Note",
       filters: [
         {

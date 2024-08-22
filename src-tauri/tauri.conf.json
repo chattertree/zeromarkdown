@@ -10,32 +10,41 @@
     "version": "0.0.0"
   },
   "tauri": {
+    "cli": {
+      "description": "Add a Source Directory",
+      "args": [
+        {
+          "name": "source",
+          "index": 1,
+          "takesValue": true
+        }
+      ]
+    },
     "allowlist": {
       "all": false,
       "shell": {
-        "all": false,
-        "open": true
+        "all": true,
+        "open": true,
+        "sidecar": true,
+        "execute": true,
+        "scope": [
+          {
+            "name": "pwd",
+            "cmd": "pwd"
+          }
+        ]
       },
       "fs": {
         "all": true,
         "readFile": true,
         "writeFile": true,
-        "readDir": true,
-        "copyFile": true,
-        "createDir": true,
-        "removeDir": true,
-        "removeFile": true,
-        "renameFile": true,
-        "exists": true,
-        "scope": ["$DOCUMENT/*"]
+        "scope": ["$HOME/*"]
       },
       "path": {
         "all": true
       },
       "dialog": {
         "all": true,
-        "ask": true,
-        "confirm": true,
         "message": true,
         "open": true,
         "save": true
