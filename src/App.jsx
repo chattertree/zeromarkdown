@@ -5,7 +5,7 @@ import Renderer from "./Renderer";
 import Editor from "./Editor";
 import EditorProvider, { EditorContext } from "./provider/EditorProvider";
 import Controls from "./Controls";
-import { useContext, useState } from "react";
+import { useState } from "react";
 
 function App() {
   const [fileName, setFileName] = useState("Foo.md");

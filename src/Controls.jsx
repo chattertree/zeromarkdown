@@ -10,7 +10,27 @@ const Controls = ({ fileName, changeFileName }) => {
 
   useEffect(() => {
     match();
+    window.addEventListener("keydown", handleKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+    };
   }, []);
+
+  const handleKey = (e) => {
+    //e.preventDefault();
+    const code = e.which || e.keyCode;
+
+    let charCode = String.fromCharCode(code).toLowerCase();
+
+    if ((e.ctrlKey || e.metaKey) && charCode == "s") {
+      handleSave();
+    } else if ((e.ctrlKey || e.metaKey) && charCode == "o") {
+      handleOpen();
+    } else if ((e.ctrlKey || e.metaKey) && charCode == "n") {
+      handleNew();
+    }
+  };
 
   const match = async () => {
     const matches = await getMatches();
