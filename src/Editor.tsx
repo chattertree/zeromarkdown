@@ -1,6 +1,7 @@
 import { Editor as MarkdownEditor, Monaco } from "@monaco-editor/react";
 import { useEditor } from "./provider/EditorProvider";
 import { markdownProvider } from "./provider/MarkdownProvider";
+import { type editor } from "monaco-editor";
 
 const Editor = ({ fileName }: { fileName: string }) => {
   const { content, setContent } = useEditor();
@@ -19,6 +20,10 @@ const Editor = ({ fileName }: { fileName: string }) => {
     });
   };
 
+  const handleMount = (editor: editor.IStandaloneCodeEditor) => {
+    editor.focus();
+  };
+
   return (
     <div className="textarea">
       <p id="fileName">
@@ -30,8 +35,8 @@ const Editor = ({ fileName }: { fileName: string }) => {
         language={"markdown"}
         value={content}
         theme={"vs-dark"}
+        onMount={handleMount}
         beforeMount={handleBeforeMount}
-        defaultValue="// some comment"
         onChange={handleChange}
       />
     </div>

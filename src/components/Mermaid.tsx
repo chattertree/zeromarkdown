@@ -19,14 +19,17 @@ const Mermaid = ({ data }: MermaidProps) => {
       const handleChange = async () => {
         try {
           if (typeof data == "string") {
-            const result = await mermaid.render(x, data);
-            if (mermaidElement.current !== null) {
-              mermaidElement.current.innerHTML = result.svg;
+            const parserData = await mermaid.parse(data, {
+              suppressErrors: true,
+            });
+            if (parserData) {
+              const result = await mermaid.render(x, data);
+              if (mermaidElement.current !== null) {
+                mermaidElement.current.innerHTML = result.svg;
+              }
             }
           }
-        } catch (err) {
-          console.error(err);
-        }
+        } catch (err) {}
       };
       handleChange();
     }

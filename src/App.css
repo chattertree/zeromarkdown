@@ -159,7 +159,7 @@ a {
   align-items: center;
   background-color: hsla(210, 11%, 15%, 1);
   border-radius: 50px;
-  border: 0.5px dashed #ffffff;
+  border: 0.5px solid #ffffff;
   z-index: 999;
 }
 
