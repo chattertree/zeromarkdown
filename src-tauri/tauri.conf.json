@@ -11,11 +11,20 @@
   },
   "tauri": {
     "allowlist": {
+      "shell": {
+        "all": true,
+        "execute": true,
+        "sidecar": true,
+        "open": true
+      },
       "all": false,
       "fs": {
         "all": true,
         "readFile": true,
         "writeFile": true,
+        "readDir": true,
+        "createDir": true,
+        "exists": true,
         "scope": ["**"]
       },
       "path": {

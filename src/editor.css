@@ -1,0 +1,6 @@
+.dark-editor {
+  --basePageBg: #000;
+  --accentSolid: hsl(348, 100%, 61%);
+  --admonitionDangerBorder: hsl(348, 100%, 61%);
+  --admonitionDangerBg: hsl(348, 30%, 31%);
+}

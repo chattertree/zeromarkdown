@@ -1,64 +1,6 @@
 @font-face {
-  font-family: "MyWebFont";
-  src: url("../fonts/wt-200.woff2");
-  font-weight: 200;
-  font-style: normal;
-}
-
-@font-face {
   font-family: "Fascinate inline";
   src: url("../fonts/FascinateInline-Regular.ttf");
-}
-
-@font-face {
-  font-family: "MyWebFont";
-  src: url("../fonts/wt-300.woff2");
-
-  font-weight: 300;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "MyWebFont";
-  src: url("../fonts/wt-400.woff2");
-
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "MyWebFont";
-  src: url("../fonts/wt-500.woff2");
-  font-weight: 500;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "MyWebFont";
-  src: url("../fonts/wt-900.woff2");
-  font-weight: 800;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "MyWebFont";
-  src: url("../fonts/I-wt-400.woff2");
-  font-weight: 400;
-  font-style: italic;
-}
-
-@font-face {
-  font-family: "MyCodeFont";
-  src: url("../fonts/attribute-mono-400.woff2");
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "MyCodeFont";
-  src: url("../fonts/attribute-mono-400-italic.woff2");
-  font-weight: 400;
-  font-style: italic;
 }
 
 a {
@@ -88,12 +30,45 @@ body {
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
-  font-family: "MyWebFont";
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+  overflow: hidden;
 }
 
 #zmd {
-  font-family: "Fascinate inline";
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
   font-size: 35px;
+  color: #fff;
+  background-color: initial;
+  width: 100%;
+  border: none;
+  outline: none;
+}
+
+.mdxeditor-toolbar {
+  background-color: hsla(210, 11%, 15%, 1) !important;
+  margin: 15px;
 }
 
 code {
@@ -138,42 +113,108 @@ a {
 
 .textarea {
   border-radius: 2rem;
+  padding: 60px;
+  width: 100%;
+  overflow-y: hidden;
 }
 
-.user-content-mermaid {
-  /*background-color: rgb(29, 31, 33);*/
-  border-radius: 0.67rem;
+.link_icon {
+  margin-left: 6px;
+  cursor: pointer;
+}
+
+.mdxeditor {
+  margin: 30px 0;
+  width: 100%;
+  height: 100%;
+  font-size: 18px;
+  overflow: scroll;
+  padding-bottom: 60px;
+}
+
+.side_menu {
+  width: 40%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  border-right: 1px solid #fff;
+}
+
+.side_menu_container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: scroll;
+}
+
+.note_data {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+}
+
+.note_controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.search_bar {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.search_bar input {
+  width: 80%;
+  height: 20px;
+  border: 1px solid #2f2f2f;
+  font-size: 12px;
+  border-radius: 20px;
+  outline: none;
+  padding: 15px;
+}
+
+.notes_list {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+}
+
+.note_controls svg {
+  cursor: pointer;
+}
+
+.separator {
+  margin: 20px 0;
+}
+
+.note {
+  height: 40px;
+  width: 90%;
+  display: flex;
+  margin: 10px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.textarea button {
   background-color: inherit;
 }
 
-.controlsMenu {
-  position: fixed;
-  bottom: 5px;
-  left: 50%;
-  height: 60px;
-  transform: translate(-50%, -50%);
+.textSpan {
+  height: 30px;
   display: flex;
-  gap: 20px;
-  padding: 10px 20px;
-  justify-content: space-evenly;
   align-items: center;
-  background-color: hsla(210, 11%, 15%, 1);
-  border-radius: 50px;
-  border: 0.5px solid #ffffff;
-  z-index: 999;
-}
-
-.controlsMenu button {
-  cursor: pointer;
-  height: 80%;
-  width: 50px;
-  border-radius: 50%;
-  border: none;
-  outline: none;
-  background-color: white;
-}
-
-.controlsMenu button svg {
-  height: 50%;
-  width: 50%;
+  padding: 0 10px;
+  background-color: hsl(348, 100%, 61%);
 }

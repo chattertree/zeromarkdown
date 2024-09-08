@@ -1,5 +1,5 @@
 import React from "react";
-import { handleOpen, handleNew, handleSave } from "./fileUtils";
+import { handleNew, handleSave } from "./fileUtils";
 
 export const handleKey = (
   e: React.KeyboardEvent<HTMLDivElement>,
@@ -13,7 +13,7 @@ export const handleKey = (
   if ((e.ctrlKey || e.metaKey) && code == "s") {
     handleSave({ fileName, content, changeFileName, setContent });
   } else if ((e.ctrlKey || e.metaKey) && code == "o") {
-    handleOpen({ changeFileName, setContent, fileName, content });
+    // handleOpen({ changeFileName, setContent, fileName, content });
   } else if ((e.ctrlKey || e.metaKey) && code == "n") {
     handleNew({ setContent, changeFileName, content, fileName });
   }

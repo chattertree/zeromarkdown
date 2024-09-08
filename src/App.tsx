@@ -1,13 +1,12 @@
 import "./App.css";
-import Renderer from "./Renderer";
 import Editor from "./Editor";
 import { useEditor } from "./provider/EditorProvider";
-import Controls from "./Controls";
 import { useState } from "react";
 import { handleKey } from "./utils/keyBinding";
+import NotesMenu from "./NotesMenu";
 
 function App() {
-  const [fileName, setFileName] = useState<string>("Untitled.md");
+  const [fileName, setFileName] = useState<string>("Untitled");
   const { content, setContent } = useEditor();
 
   const changeFileName = (newName: string | undefined) => {
@@ -18,22 +17,18 @@ function App() {
 
   return (
     <>
-      <h1 id="zmd" style={{ textAlign: "center" }}>
-        Zero Mark Down Editor
-      </h1>
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          margin: "0 2rem 0 2rem",
+          display: "flex",
+          height: "100vh",
+          width: "100%",
         }}
         onKeyDown={(e) =>
           handleKey(e, content, fileName, changeFileName, setContent)
         }
       >
-        <Editor fileName={fileName} />
-        <Renderer />
-        <Controls fileName={fileName} changeFileName={changeFileName} />
+        <NotesMenu fileName={fileName} changeFileName={changeFileName} />
+        <Editor fileName={fileName} changeFileName={changeFileName} />
       </div>
     </>
   );

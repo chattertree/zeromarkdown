@@ -1,45 +1,89 @@
-import { ReactNode, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
-import { v4 as uuidv4 } from "uuid";
+import {
+  CodeBlockEditorDescriptor,
+  useCodeBlockEditorContext,
+} from "@mdxeditor/editor";
 
 type MermaidProps = {
-  data: string | ReactNode | undefined;
+  code: string;
 };
 
-const Mermaid = ({ data }: MermaidProps) => {
+mermaid.initialize({
+  startOnLoad: true,
+  theme: "dark",
+  securityLevel: "loose",
+});
+
+const MermaidPreview = ({ code }: MermaidProps) => {
   let mermaidElement = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    mermaid.initialize({
-      securityLevel: "loose",
-      theme: "dark",
-    });
-    let x = String(`user-content-${uuidv4()}`);
-    if (data) {
-      const handleChange = async () => {
-        try {
-          if (typeof data == "string") {
-            const parserData = await mermaid.parse(data, {
-              suppressErrors: true,
-            });
-            if (parserData) {
-              const result = await mermaid.render(x, data);
-              if (mermaidElement.current !== null) {
-                mermaidElement.current.innerHTML = result.svg;
-              }
-            }
-          }
-        } catch (err) {}
-      };
-      handleChange();
+    if (mermaidElement.current) {
+      if (typeof code == "string") {
+        code = code.replace("—>", "-->");
+      }
+      mermaid.render("mermaidContent", code).then(({ svg }) => {
+        mermaidElement.current!.innerHTML = svg;
+      });
     }
-  }, [data]);
+  }, [code]);
 
   return (
     <>
-      <div className="user-content-mermaid" ref={mermaidElement}></div>
+      <div ref={mermaidElement}>{code}</div>
     </>
   );
 };
 
-export default Mermaid;
+export const MermaidCodeEditorDescriptor: CodeBlockEditorDescriptor = {
+  match: (language, _meta) => {
+    return language === "mermaid" || language == "mmd";
+  },
+  priority: 0,
+  Editor: (props) => {
+    const cb = useCodeBlockEditorContext();
+    const [code, setCode] = useState(props.code);
+
+    return (
+      <div
+        onKeyDown={(e) => {
+          e.nativeEvent.stopImmediatePropagation();
+        }}
+      >
+        <div style={{ display: "flex" }}>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span className="textSpan">Mermaid Code</span>
+            <textarea
+              style={{
+                backgroundColor: "inherit",
+                borderRadius: 10,
+                border: "1px solid #000",
+                outline: "none",
+                color: "#fff",
+                padding: 10,
+                resize: "none",
+                fontSize: 16,
+              }}
+              rows={10}
+              cols={30}
+              autoFocus={props.code === ""}
+              autoCapitalize="none"
+              autoComplete="false"
+              spellCheck="false"
+              defaultValue={props.code}
+              onChange={(e) => {
+                setCode(e.target.value);
+                cb.setCode(e.target.value);
+              }}
+              autoCorrect="false"
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <MermaidPreview code={code} />
+          </div>
+        </div>
+      </div>
+    );
+  },
+};
