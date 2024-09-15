@@ -52,9 +52,6 @@ For more info on this checkout [Mermaid docs](https://mermaid.js.org/intro/)
 - [ ] Add key to toggle Themes
 - [ ] Add option to choose Fonts
 - [ ] Add support to browse recently opened Notes
-- [ ] Add Image Support
-- [ ] File Vault System
-- [ ] Auto-saving Feature
 
 ---
 
@@ -68,4 +65,7 @@ For more info on this checkout [Mermaid docs](https://mermaid.js.org/intro/)
 - [x] Mermaid Support
 - [x] Add a Custom Logo
 - [x] Add Code Snippets
+- [x] Add Image Support
+- [x] File Vault System
+- [x] Auto-saving Feature
 ---
