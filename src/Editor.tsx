@@ -138,6 +138,7 @@ const Editor = ({
               css: "CSS",
               txt: "text",
               tsx: "TypeScript",
+              bash: "Bash",
             },
             codeMirrorExtensions: [oneDark],
           }),

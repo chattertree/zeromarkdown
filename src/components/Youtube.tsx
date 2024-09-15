@@ -3,8 +3,10 @@ import {
   DirectiveDescriptor,
   DialogButton,
   insertDirective$,
+  insertTable$,
 } from "@mdxeditor/editor";
-import { FaYoutube } from "react-icons/fa";
+import { useEffect } from "react";
+import { FaYoutube, FaRegTrashAlt } from "react-icons/fa";
 
 export const YoutubeDirectiveDescriptor: DirectiveDescriptor = {
   name: "youtube",
@@ -24,6 +26,7 @@ export const YoutubeDirectiveDescriptor: DirectiveDescriptor = {
         }}
       >
         <button
+          className="youtube_delete_btn"
           onClick={() => {
             parentEditor.update(() => {
               lexicalNode.selectNext();
@@ -31,7 +34,7 @@ export const YoutubeDirectiveDescriptor: DirectiveDescriptor = {
             });
           }}
         >
-          delete
+          <FaRegTrashAlt />
         </button>
         <iframe
           width="560"
@@ -48,7 +51,14 @@ export const YoutubeDirectiveDescriptor: DirectiveDescriptor = {
 
 export const YouTubeButton = () => {
   const insertDirective: any = usePublisher(insertDirective$);
-
+  const insertTable: any = usePublisher(insertTable$);
+  useEffect(() => {
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key == "t") {
+        insertTable({ rows: 2, columns: 3 });
+      }
+    });
+  }, []);
   return (
     <DialogButton
       tooltipTitle="Insert Youtube video"

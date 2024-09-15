@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
+import { v4 as uuidv4 } from "uuid";
 import {
   CodeBlockEditorDescriptor,
   useCodeBlockEditorContext,
@@ -23,7 +24,7 @@ const MermaidPreview = ({ code }: MermaidProps) => {
       if (typeof code == "string") {
         code = code.replace("—>", "-->");
       }
-      mermaid.render("mermaidContent", code).then(({ svg }) => {
+      mermaid.render(`mermaidContent-${uuidv4()}`, code).then(({ svg }) => {
         mermaidElement.current!.innerHTML = svg;
       });
     }
@@ -31,7 +32,9 @@ const MermaidPreview = ({ code }: MermaidProps) => {
 
   return (
     <>
-      <div ref={mermaidElement}>{code}</div>
+      <div className="user-content-mermaid" ref={mermaidElement}>
+        {code}
+      </div>
     </>
   );
 };
@@ -53,20 +56,20 @@ export const MermaidCodeEditorDescriptor: CodeBlockEditorDescriptor = {
       >
         <div style={{ display: "flex" }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <span className="textSpan">Mermaid Code</span>
+            {/* <span className="textSpan">Mermaid</span> */}
             <textarea
               style={{
                 backgroundColor: "inherit",
-                borderRadius: 10,
-                border: "1px solid #000",
                 outline: "none",
                 color: "#fff",
                 padding: 10,
                 resize: "none",
                 fontSize: 16,
+                border: "none",
+                borderLeft: "3px solid hsl(348, 100%, 61%)",
               }}
               rows={10}
-              cols={30}
+              cols={20}
               autoFocus={props.code === ""}
               autoCapitalize="none"
               autoComplete="false"

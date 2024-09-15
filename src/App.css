@@ -129,7 +129,7 @@ a {
   height: 100%;
   font-size: 18px;
   overflow: scroll;
-  padding-bottom: 60px;
+  overflow-x: hidden;
 }
 
 .side_menu {
@@ -211,10 +211,18 @@ a {
   background-color: inherit;
 }
 
-.textSpan {
-  height: 30px;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-  background-color: hsl(348, 100%, 61%);
+/* .textSpan { */
+/*   height: 20px; */
+/*   display: flex; */
+/*   align-items: center; */
+/*   padding: 0 10px; */
+/* } */
+
+.youtube_delete_btn {
+  outline: none;
+  border: none;
+  color: #fff;
+  padding: 5px 10px;
+  font-size: 19px;
+  cursor: pointer;
 }
