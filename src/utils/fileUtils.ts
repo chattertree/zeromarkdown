@@ -1,5 +1,10 @@
-import { writeTextFile, readTextFile, exists } from "@tauri-apps/api/fs";
-import { save, open, message } from "@tauri-apps/api/dialog";
+import {
+  writeTextFile,
+  readTextFile,
+  BaseDirectory,
+  readDir,
+} from "@tauri-apps/api/fs";
+import { open, message } from "@tauri-apps/api/dialog";
 import React from "react";
 
 interface FileProps {
@@ -9,41 +14,19 @@ interface FileProps {
   setContent: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export const handleSave = async ({
-  fileName,
-  content,
-  changeFileName,
-}: FileProps) => {
-  const fileStatus = await exists(fileName);
-  if (fileStatus) {
-    await writeTextFile(fileName, content);
-  } else {
-    const onlyname = fileName.split(".")[0];
+export const handleSave = async ({ fileName, content }: FileProps) => {
+  await writeTextFile(`ZMD/${fileName}.md`, content, {
+    dir: BaseDirectory.Document,
+  });
+};
 
-    const filePath = await save({
-      defaultPath: onlyname,
-      title: "Save Note",
-      filters: [
-        {
-          name: "MarkDown",
-          extensions: ["md", "mdx"],
-        },
-      ],
-    });
-    try {
-      if (filePath !== null) {
-        await writeTextFile(filePath, content);
-        await message("File has been saved", "ZeroMarkDown");
-        changeFileName(filePath);
-      }
-    } catch (err) {
-      await message("File could not be saved", {
-        title: "ZeroMarkDown",
-        type: "error",
-      });
-      console.log("This error: ", err);
-    }
-  }
+export const listNotes = async () => {
+  let directory = await readDir("ZMD", {
+    dir: BaseDirectory.Document,
+    recursive: true,
+  });
+  directory = directory.filter((note) => note.name?.includes(".md"));
+  return directory;
 };
 
 export const handleOpen = async ({ changeFileName, setContent }: FileProps) => {
@@ -70,7 +53,10 @@ export const handleOpen = async ({ changeFileName, setContent }: FileProps) => {
   }
 };
 
-export const handleNew = async ({ setContent, changeFileName }: FileProps) => {
-  setContent("// Type something new");
-  changeFileName("Foo.md");
+export const handleNew = async (
+  setContent: React.Dispatch<React.SetStateAction<string>>,
+  changeFileName: Function,
+) => {
+  setContent("");
+  changeFileName("Untitled");
 };

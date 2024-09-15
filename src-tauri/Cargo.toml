@@ -1,7 +1,7 @@
 [package]
 name = "zeromarkdown"
-version = "0.0.0"
-description = "A Tauri App"
+version = "0.1.0"
+description = "A Note-taking app built with React and Tauri"
 authors = ["you"]
 edition = "2021"
 
@@ -11,7 +11,7 @@ edition = "2021"
 tauri-build = { version = "1", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = [ "dialog-all", "path-all", "fs-all"] }
+tauri = { version = "1", features = [ "path-all", "shell-all", "fs-all", "dialog-all"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
