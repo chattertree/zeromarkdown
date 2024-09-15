@@ -8,8 +8,12 @@ import {
 } from "@tauri-apps/api/fs";
 import { useEditor } from "./provider/EditorProvider";
 import { useNotes } from "./provider/NotesProvider";
-import { FaRegStickyNote, FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
-import { listNotes } from "./utils/fileUtils";
+import {
+  FaRegStickyNote,
+  FaRegTrashAlt,
+  FaRegPlusSquare,
+} from "react-icons/fa";
+import { handleNew, listNotes } from "./utils/fileUtils";
 
 type NotesProps = {
   fileName: string;
@@ -74,18 +78,30 @@ const NotesMenu = ({ fileName, changeFileName }: NotesProps) => {
           />
         </div>
         <div className="separator"></div>
+        <div
+          className="note"
+          onClick={() => handleNew(setContent, changeFileName)}
+        >
+          <div className="note_data">
+            <FaRegPlusSquare />
+            <p>Create a New Note</p>
+          </div>
+        </div>
         <p id="notes_title">------Your Notes------</p>
         <div className="notes_list">
           {notes.map((note: any, key: any) => {
             let noteName = note.name.split(".")[0];
             return (
-              <aside className="note" key={key}>
+              <aside
+                className="note"
+                key={key}
+                onClick={() => handleEdit(noteName)}
+              >
                 <div className="note_data">
                   <FaRegStickyNote />
                   <p>{noteName}</p>
                 </div>
                 <div className="note_controls">
-                  <FaRegEdit onClick={() => handleEdit(noteName)} />
                   <FaRegTrashAlt onClick={() => handleDelete(noteName)} />
                 </div>
               </aside>

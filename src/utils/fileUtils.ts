@@ -53,7 +53,10 @@ export const handleOpen = async ({ changeFileName, setContent }: FileProps) => {
   }
 };
 
-export const handleNew = async ({ setContent, changeFileName }: FileProps) => {
+export const handleNew = async (
+  setContent: React.Dispatch<React.SetStateAction<string>>,
+  changeFileName: Function,
+) => {
   setContent("");
   changeFileName("Untitled");
 };
