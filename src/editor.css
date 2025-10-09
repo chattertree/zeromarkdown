@@ -4,3 +4,20 @@
   --admonitionDangerBorder: hsl(348, 100%, 61%);
   --admonitionDangerBg: hsl(348, 30%, 31%);
 }
+
+.dark-editor .ͼo{
+  background-color: hsla(210, 11%, 15%, 1);
+  color: hsla(210, 14%, 89%, 1);
+}
+
+.dark-editor .cm-gutterElement{
+  color: hsla(210, 14%, 89%, 1);
+}
+
+.dark-editor .cm-activeLineGutter{
+  color: #000 !important;
+}
+
+.dark-editor .cm-merge-revert{
+  color: hsla(210, 14%, 89%, 1);
+}

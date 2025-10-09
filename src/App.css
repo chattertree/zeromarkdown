@@ -157,6 +157,7 @@ a {
   justify-content: flex-start;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .note_controls {

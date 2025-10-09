@@ -15,6 +15,6 @@ export const handleKey = (
   } else if ((e.ctrlKey || e.metaKey) && code == "o") {
     // handleOpen({ changeFileName, setContent, fileName, content });
   } else if ((e.ctrlKey || e.metaKey) && code == "n") {
-    handleNew({ setContent, changeFileName, content, fileName });
+    handleNew(setContent, changeFileName);
   }
 };

@@ -3,9 +3,7 @@ import {
   DirectiveDescriptor,
   DialogButton,
   insertDirective$,
-  insertTable$,
 } from "@mdxeditor/editor";
-import { useEffect } from "react";
 import { FaYoutube, FaRegTrashAlt } from "react-icons/fa";
 
 export const YoutubeDirectiveDescriptor: DirectiveDescriptor = {
@@ -37,11 +35,13 @@ export const YoutubeDirectiveDescriptor: DirectiveDescriptor = {
           <FaRegTrashAlt />
         </button>
         <iframe
-          width="560"
-          height="315"
+          width="1000"
+          height="600"
           src={`https://www.youtube.com/embed/${mdastNode.attributes?.id}`}
           title="YouTube video player"
           frameBorder="0"
+          seamless={true}
+          allowTransparency
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         ></iframe>
       </div>
@@ -50,15 +50,7 @@ export const YoutubeDirectiveDescriptor: DirectiveDescriptor = {
 };
 
 export const YouTubeButton = () => {
-  const insertDirective: any = usePublisher(insertDirective$);
-  const insertTable: any = usePublisher(insertTable$);
-  useEffect(() => {
-    document.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key == "t") {
-        insertTable({ rows: 2, columns: 3 });
-      }
-    });
-  }, []);
+  const insertDirective: Function = usePublisher(insertDirective$);
   return (
     <DialogButton
       tooltipTitle="Insert Youtube video"

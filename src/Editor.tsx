@@ -11,7 +11,6 @@ import {
   tablePlugin,
   markdownShortcutPlugin,
   codeBlockPlugin,
-  frontmatterPlugin,
   imagePlugin,
   codeMirrorPlugin,
   directivesPlugin,
@@ -27,9 +26,9 @@ import {
   Separator,
   BlockTypeSelect,
   CodeToggle,
-  InsertFrontmatter,
-  InsertSandpack,
   InsertThematicBreak,
+  diffSourcePlugin,
+  DiffSourceToggleWrapper,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import { handleSave, listNotes } from "./utils/fileUtils";
@@ -42,8 +41,6 @@ import {
   YoutubeDirectiveDescriptor,
 } from "./components/Youtube";
 import "./editor.css";
-import { imageAsDirectivePlugin } from "./components/Image";
-import { markdownLinkShortcutPlugin } from "./plugins/LinkPlugin";
 
 const Editor = ({
   fileName,
@@ -100,11 +97,6 @@ const Editor = ({
     setNotes(directory);
   };
 
-  const MARKDOWN_OPTIONS = {
-    resourceLink: true,
-    rule: "*",
-  };
-
   return (
     <div className="textarea">
       <input
@@ -119,12 +111,11 @@ const Editor = ({
         ref={editorRef}
         className="dark-theme dark-editor"
         markdown=""
-        toMarkdownOptions={MARKDOWN_OPTIONS}
         placeholder="What's on your mind?"
         plugins={[
           toolbarPlugin({
             toolbarContents: () => (
-              <>
+              <DiffSourceToggleWrapper>
                 <UndoRedo />
                 <BoldItalicUnderlineToggles />
                 <BlockTypeSelect />
@@ -132,13 +123,11 @@ const Editor = ({
                 <InsertTable />
                 <CreateLink />
                 <InsertImage />
-                <InsertFrontmatter />
-                <InsertSandpack />
                 <InsertThematicBreak />
                 <Separator />
                 <InsertAdmonition />
                 <YouTubeButton />
-              </>
+              </DiffSourceToggleWrapper>
             ),
           }),
           listsPlugin(),
@@ -149,8 +138,7 @@ const Editor = ({
           imagePlugin(),
           tablePlugin(),
           thematicBreakPlugin(),
-          frontmatterPlugin(),
-          imageAsDirectivePlugin(),
+          diffSourcePlugin({ diffMarkdown: 'An older version', viewMode: 'rich-text', readOnlyDiff: true }),
           codeBlockPlugin({
             codeBlockEditorDescriptors: [MermaidCodeEditorDescriptor],
             defaultCodeBlockLanguage: "js",
@@ -171,7 +159,6 @@ const Editor = ({
               YoutubeDirectiveDescriptor,
             ],
           }),
-          markdownLinkShortcutPlugin(),
           markdownShortcutPlugin(),
         ]}
         onChange={handleChange}
