@@ -26,7 +26,14 @@ export const listNotes = async () => {
     recursive: true,
   });
   directory = directory.filter((note) => note.name?.includes(".md"));
-  return directory;
+  const pinData = await JSON.parse(await readTextFile('ZMD/config.json', {dir: BaseDirectory.Document}));
+  const noteData = directory.map(note => ({path: note.path, name: note.name, meta: {
+    isPinned: pinData.pinned.includes(note.name)
+  }}))
+  noteData.sort((a, b) => {
+    return (b.meta.isPinned === true ? 1 : 0) - (a.meta.isPinned === true ? 1 : 0);
+  });
+  return noteData;
 };
 
 export const handleOpen = async ({ changeFileName, setContent }: FileProps) => {

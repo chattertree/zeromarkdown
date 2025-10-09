@@ -11,7 +11,6 @@ import {
   tablePlugin,
   markdownShortcutPlugin,
   codeBlockPlugin,
-  frontmatterPlugin,
   imagePlugin,
   codeMirrorPlugin,
   directivesPlugin,
@@ -23,6 +22,13 @@ import {
   CreateLink,
   InsertAdmonition,
   InsertTable,
+  InsertImage,
+  Separator,
+  BlockTypeSelect,
+  CodeToggle,
+  InsertThematicBreak,
+  diffSourcePlugin,
+  DiffSourceToggleWrapper,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import { handleSave, listNotes } from "./utils/fileUtils";
@@ -109,14 +115,19 @@ const Editor = ({
         plugins={[
           toolbarPlugin({
             toolbarContents: () => (
-              <>
+              <DiffSourceToggleWrapper>
                 <UndoRedo />
                 <BoldItalicUnderlineToggles />
+                <BlockTypeSelect />
+                <CodeToggle />
                 <InsertTable />
                 <CreateLink />
+                <InsertImage />
+                <InsertThematicBreak />
+                <Separator />
                 <InsertAdmonition />
                 <YouTubeButton />
-              </>
+              </DiffSourceToggleWrapper>
             ),
           }),
           listsPlugin(),
@@ -127,7 +138,7 @@ const Editor = ({
           imagePlugin(),
           tablePlugin(),
           thematicBreakPlugin(),
-          frontmatterPlugin(),
+          diffSourcePlugin({ diffMarkdown: 'An older version', viewMode: 'rich-text', readOnlyDiff: true }),
           codeBlockPlugin({
             codeBlockEditorDescriptors: [MermaidCodeEditorDescriptor],
             defaultCodeBlockLanguage: "js",
