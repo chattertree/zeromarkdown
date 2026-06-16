@@ -33,6 +33,7 @@ import {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -49,6 +50,111 @@ type NoteObj = {
     isPinned: boolean;
   };
 };
+
+function SidebarNav({
+  fileName,
+  notes,
+  handleSearch,
+  handleEdit,
+  handleDelete,
+  handleNew,
+  pinNotes,
+}: {
+  fileName: string;
+  notes: NoteObj[];
+  handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleEdit: (name: string) => void;
+  handleDelete: (name: string) => void;
+  handleNew: () => void;
+  pinNotes: (action: string, note: NoteObj) => void;
+}) {
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
+  return (
+    <Sidebar collapsible="icon">
+      {!isCollapsed && (
+        <SidebarHeader>
+          <SidebarInput
+            type="search"
+            placeholder="Search for your notes"
+            onChange={handleSearch}
+          />
+        </SidebarHeader>
+      )}
+      <SidebarSeparator />
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={handleNew}>
+                  <IconPlus />
+                  <span>Create a New Note</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Your Notes</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {notes.map((note: NoteObj) => {
+                const noteName = note.name.split(".md")[0];
+                return (
+                  <SidebarMenuItem key={note.path}>
+                    <SidebarMenuButton
+                      onClick={() => handleEdit(noteName)}
+                      isActive={fileName === noteName}
+                    >
+                      <IconNote />
+                      <span>{noteName}</span>
+                    </SidebarMenuButton>
+                    <SidebarMenuAction
+                      showOnHover={!note.meta.isPinned}
+                      className={
+                        note.meta.isPinned
+                          ? "text-yellow-500 opacity-100"
+                          : undefined
+                      }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        pinNotes(
+                          note.meta.isPinned ? "unpin" : "pin",
+                          note,
+                        );
+                      }}
+                      title={note.meta.isPinned ? "Unpin" : "Pin"}
+                    >
+                      {note.meta.isPinned ? (
+                        <IconPinnedFilled />
+                      ) : (
+                        <IconPin />
+                      )}
+                    </SidebarMenuAction>
+                    <SidebarMenuAction
+                      showOnHover
+                      className="right-7"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(noteName);
+                      }}
+                      title="Delete"
+                    >
+                      <IconTrash />
+                    </SidebarMenuAction>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarRail />
+    </Sidebar>
+  );
+}
 
 const NotesMenu = ({ fileName, changeFileName, children }: NotesProps) => {
   const { notes, setNotes } = useNotes();
@@ -116,87 +222,15 @@ const NotesMenu = ({ fileName, changeFileName, children }: NotesProps) => {
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <Sidebar collapsible="icon">
-          <SidebarHeader>
-            <SidebarInput
-              type="search"
-              placeholder="Search for your notes"
-              onChange={handleSearch}
-            />
-          </SidebarHeader>
-          <SidebarSeparator />
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      onClick={() => handleNew(setContent, changeFileName)}
-                    >
-                      <IconPlus />
-                      <span>Create a New Note</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-            <SidebarGroup>
-              <SidebarGroupLabel>Your Notes</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {notes.map((note: NoteObj) => {
-                    const noteName = note.name.split(".md")[0];
-                    return (
-                      <SidebarMenuItem key={note.path}>
-                        <SidebarMenuButton
-                          onClick={() => handleEdit(noteName)}
-                          isActive={fileName === noteName}
-                        >
-                          <IconNote />
-                          <span>{noteName}</span>
-                        </SidebarMenuButton>
-                        <SidebarMenuAction
-                          showOnHover={!note.meta.isPinned}
-                          className={
-                            note.meta.isPinned
-                              ? "text-yellow-500 opacity-100"
-                              : undefined
-                          }
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            pinNotes(
-                              note.meta.isPinned ? "unpin" : "pin",
-                              note,
-                            );
-                          }}
-                          title={note.meta.isPinned ? "Unpin" : "Pin"}
-                        >
-                          {note.meta.isPinned ? (
-                            <IconPinnedFilled />
-                          ) : (
-                            <IconPin />
-                          )}
-                        </SidebarMenuAction>
-                        <SidebarMenuAction
-                          showOnHover
-                          className="right-7"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(noteName);
-                          }}
-                          title="Delete"
-                        >
-                          <IconTrash />
-                        </SidebarMenuAction>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-          <SidebarRail />
-        </Sidebar>
+        <SidebarNav
+          fileName={fileName}
+          notes={notes}
+          handleSearch={handleSearch}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+          handleNew={() => handleNew(setContent, changeFileName)}
+          pinNotes={pinNotes}
+        />
         <SidebarInset className="h-svh overflow-hidden">
           <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger />

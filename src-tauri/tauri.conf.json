@@ -35,6 +35,10 @@
         "message": true,
         "open": true,
         "save": true
+      },
+      "protocol": {
+        "asset": true,
+        "assetScope": ["**"]
       }
     },
     "windows": [

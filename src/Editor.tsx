@@ -11,7 +11,6 @@ import {
   tablePlugin,
   markdownShortcutPlugin,
   codeBlockPlugin,
-  imagePlugin,
   codeMirrorPlugin,
   directivesPlugin,
   toolbarPlugin,
@@ -22,7 +21,6 @@ import {
   CreateLink,
   InsertAdmonition,
   InsertTable,
-  InsertImage,
   Separator,
   BlockTypeSelect,
   CodeToggle,
@@ -34,12 +32,13 @@ import "@mdxeditor/editor/style.css";
 import { handleSave, listNotes } from "./utils/fileUtils";
 import { MermaidCodeEditorDescriptor } from "./components/Mermaid";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { removeVaultFile, vaultFileExists } from "./utils/vaultStorage";
+import { removeVaultFile, saveImageToVault, vaultFileExists } from "./utils/vaultStorage";
 import { useNotes } from "./provider/NotesProvider";
 import {
   YouTubeButton,
   YoutubeDirectiveDescriptor,
 } from "./components/Youtube";
+import { wikiLinkPlugin } from "./plugins/wikilink";
 import "./editor.css";
 
 const Editor = ({
@@ -63,6 +62,31 @@ const Editor = ({
       editorRef.current.setMarkdown(content);
     }
   }, [fileName, content]);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { pageName } = (e as CustomEvent).detail;
+      changeFileName(pageName);
+    };
+    window.addEventListener("wikilink-navigate", handler);
+    return () => window.removeEventListener("wikilink-navigate", handler);
+  }, [changeFileName]);
+
+  const handlePaste = async (e: React.ClipboardEvent) => {
+    const items = Array.from(e.clipboardData.items);
+    const imageItems = items.filter((item) => item.type.startsWith("image/"));
+    if (imageItems.length === 0) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent.stopImmediatePropagation();
+    for (const item of imageItems) {
+      const file = item.getAsFile();
+      if (!file) continue;
+      const src = await saveImageToVault(file);
+      editorRef.current?.insertMarkdown(`\n![](${src})\n`);
+    }
+  };
 
   const handleChange = (markdown: string) => {
     setContent(markdown);
@@ -103,7 +127,7 @@ const Editor = ({
   };
 
   return (
-    <div className="textarea">
+    <div className="textarea" onPasteCapture={handlePaste}>
       <input
         id="zmd"
         value={draftTitle}
@@ -127,7 +151,6 @@ const Editor = ({
                 <CodeToggle />
                 <InsertTable />
                 <CreateLink />
-                <InsertImage />
                 <InsertThematicBreak />
                 <Separator />
                 <InsertAdmonition />
@@ -140,7 +163,6 @@ const Editor = ({
           headingsPlugin(),
           linkPlugin(),
           linkDialogPlugin(),
-          imagePlugin(),
           tablePlugin(),
           thematicBreakPlugin(),
           diffSourcePlugin({ diffMarkdown: 'An older version', viewMode: 'rich-text', readOnlyDiff: true }),
@@ -165,6 +187,7 @@ const Editor = ({
             ],
           }),
           markdownShortcutPlugin(),
+          wikiLinkPlugin(),
         ]}
         onChange={handleChange}
         onError={handleError}

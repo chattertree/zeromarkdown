@@ -6,7 +6,10 @@ import {
   readTextFile,
   removeFile,
   writeTextFile,
+  writeBinaryFile,
 } from "@tauri-apps/api/fs";
+import { documentDir } from "@tauri-apps/api/path";
+import { convertFileSrc } from "@tauri-apps/api/tauri";
 import { isTauri } from "./isTauri";
 
 const VAULT_DIR = "ZMD";
@@ -113,4 +116,32 @@ export async function vaultFileExists(fileName: string): Promise<boolean> {
     `/api/vault/file-exists?file=${encodeURIComponent(fileName)}`,
   );
   return data.exists;
+}
+
+export async function saveImageToVault(file: File): Promise<string> {
+  const ext = file.name.split(".").pop() || "png";
+  const uniqueName = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+  const assetsPath = `${VAULT_DIR}/assets`;
+
+  if (isTauri()) {
+    const assetsExist = await exists(assetsPath, { dir: BaseDirectory.Document });
+    if (!assetsExist) {
+      await createDir(assetsPath, { dir: BaseDirectory.Document, recursive: true });
+    }
+
+    const buffer = await file.arrayBuffer();
+    await writeBinaryFile(`${assetsPath}/${uniqueName}`, new Uint8Array(buffer), {
+      dir: BaseDirectory.Document,
+    });
+
+    const docPath = await documentDir();
+    const fullPath = `${docPath}${VAULT_DIR}/assets/${uniqueName}`;
+    return convertFileSrc(fullPath);
+  }
+
+  const buffer = await file.arrayBuffer();
+  const base64 = btoa(
+    new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ""),
+  );
+  return `data:${file.type};base64,${base64}`;
 }
