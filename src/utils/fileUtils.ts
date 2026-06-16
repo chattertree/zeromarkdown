@@ -1,11 +1,11 @@
-import {
-  writeTextFile,
-  readTextFile,
-  BaseDirectory,
-  readDir,
-} from "@tauri-apps/api/fs";
 import { open, message } from "@tauri-apps/api/dialog";
 import React from "react";
+import { isTauri } from "./isTauri";
+import {
+  listVaultMdFiles,
+  readVaultFile,
+  writeVaultFile,
+} from "./vaultStorage";
 
 interface FileProps {
   fileName: string;
@@ -15,21 +15,19 @@ interface FileProps {
 }
 
 export const handleSave = async ({ fileName, content }: FileProps) => {
-  await writeTextFile(`ZMD/${fileName}.md`, content, {
-    dir: BaseDirectory.Document,
-  });
+  await writeVaultFile(`${fileName}.md`, content);
 };
 
 export const listNotes = async () => {
-  let directory = await readDir("ZMD", {
-    dir: BaseDirectory.Document,
-    recursive: true,
-  });
-  directory = directory.filter((note) => note.name?.includes(".md"));
-  const pinData = await JSON.parse(await readTextFile('ZMD/config.json', {dir: BaseDirectory.Document}));
-  const noteData = directory.map(note => ({path: note.path, name: note.name, meta: {
-    isPinned: pinData.pinned.includes(note.name)
-  }}))
+  const directory = await listVaultMdFiles();
+  const pinData = JSON.parse(await readVaultFile("config.json"));
+  const noteData = directory.map((note) => ({
+    path: note.path,
+    name: note.name,
+    meta: {
+      isPinned: pinData.pinned.includes(note.name),
+    },
+  }));
   noteData.sort((a, b) => {
     return (b.meta.isPinned === true ? 1 : 0) - (a.meta.isPinned === true ? 1 : 0);
   });
@@ -37,6 +35,11 @@ export const listNotes = async () => {
 };
 
 export const handleOpen = async ({ changeFileName, setContent }: FileProps) => {
+  if (!isTauri()) {
+    console.warn("Open file dialog is only available in the desktop app.");
+    return;
+  }
+
   const selected = await open({
     filters: [
       {
@@ -47,6 +50,7 @@ export const handleOpen = async ({ changeFileName, setContent }: FileProps) => {
   });
   try {
     if (typeof selected == "string") {
+      const { readTextFile } = await import("@tauri-apps/api/fs");
       const contents = await readTextFile(selected);
       setContent(contents);
       changeFileName(selected);

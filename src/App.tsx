@@ -16,21 +16,16 @@ function App() {
   };
 
   return (
-    <>
+    <NotesMenu fileName={fileName} changeFileName={changeFileName}>
       <div
-        style={{
-          display: "flex",
-          height: "100vh",
-          width: "100%",
-        }}
+        className="flex min-h-0 flex-1 flex-col overflow-hidden"
         onKeyDown={(e) =>
           handleKey(e, content, fileName, changeFileName, setContent)
         }
       >
-        <NotesMenu fileName={fileName} changeFileName={changeFileName} />
         <Editor fileName={fileName} changeFileName={changeFileName} />
       </div>
-    </>
+    </NotesMenu>
   );
 }
 
