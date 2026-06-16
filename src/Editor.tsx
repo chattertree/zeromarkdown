@@ -1,5 +1,5 @@
 import { useEditor } from "./provider/EditorProvider";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   MDXEditor,
   headingsPlugin,
@@ -34,7 +34,7 @@ import "@mdxeditor/editor/style.css";
 import { handleSave, listNotes } from "./utils/fileUtils";
 import { MermaidCodeEditorDescriptor } from "./components/Mermaid";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { BaseDirectory, removeFile, exists } from "@tauri-apps/api/fs";
+import { removeVaultFile, vaultFileExists } from "./utils/vaultStorage";
 import { useNotes } from "./provider/NotesProvider";
 import {
   YouTubeButton,
@@ -51,8 +51,12 @@ const Editor = ({
 }) => {
   const { content, setContent } = useEditor();
   const editorRef = useRef<MDXEditorMethods>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const { setNotes } = useNotes();
+  const [draftTitle, setDraftTitle] = useState(fileName);
+
+  useEffect(() => {
+    setDraftTitle(fileName);
+  }, [fileName]);
 
   useEffect(() => {
     if (editorRef.current != null) {
@@ -64,7 +68,7 @@ const Editor = ({
     setContent(markdown);
 
     handleSave({
-      fileName: inputRef.current?.value!,
+      fileName,
       content: markdown,
       changeFileName,
       setContent,
@@ -75,24 +79,25 @@ const Editor = ({
     console.log(payload);
   };
 
-  const handleInputChange = (e: React.BaseSyntheticEvent) => {
-    removeCurrentFile();
-    changeFileName(e.target.value);
-  };
+  const commitTitleChange = async () => {
+    const newName = draftTitle.trim() || "Untitled";
+    setDraftTitle(newName);
 
-  const removeCurrentFile = async () => {
-    const oldFileExists = await exists(`ZMD/${fileName}.md`, {
-      dir: BaseDirectory.Document,
-    });
+    if (newName === fileName) {
+      return;
+    }
+
+    const oldFileExists = await vaultFileExists(`${fileName}.md`);
     if (oldFileExists) {
-      await removeFile(`ZMD/${fileName}.md`, { dir: BaseDirectory.Document });
+      await removeVaultFile(`${fileName}.md`);
     }
     await handleSave({
-      fileName: inputRef.current?.value!,
+      fileName: newName,
       content,
       changeFileName,
       setContent,
     });
+    changeFileName(newName);
     const directory = await listNotes();
     setNotes(directory);
   };
@@ -101,10 +106,10 @@ const Editor = ({
     <div className="textarea">
       <input
         id="zmd"
-        ref={inputRef}
-        value={fileName}
+        value={draftTitle}
         type="text"
-        onInput={handleInputChange}
+        onChange={(e) => setDraftTitle(e.target.value)}
+        onBlur={commitTitleChange}
       />
       <MDXEditor
         autoFocus

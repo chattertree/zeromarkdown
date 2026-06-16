@@ -26,8 +26,12 @@ export const NotesProvider = ({ children }: ChildrenProps) => {
   }, []);
 
   const fetchNotes = async () => {
-    const notesData = await listNotes();
-    setNotes(notesData);
+    try {
+      const notesData = await listNotes();
+      setNotes(notesData);
+    } catch (error) {
+      console.error("Failed to fetch notes:", error);
+    }
   };
 
   return (

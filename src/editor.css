@@ -1,23 +1,23 @@
 .dark-editor {
-  --basePageBg: #000;
+  --basePageBg: var(--background);
   --accentSolid: hsl(348, 100%, 61%);
   --admonitionDangerBorder: hsl(348, 100%, 61%);
   --admonitionDangerBg: hsl(348, 30%, 31%);
 }
 
-.dark-editor .ͼo{
-  background-color: hsla(210, 11%, 15%, 1);
-  color: hsla(210, 14%, 89%, 1);
+.dark-editor .ͼo {
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
-.dark-editor .cm-gutterElement{
-  color: hsla(210, 14%, 89%, 1);
+.dark-editor .cm-gutterElement {
+  color: var(--muted-foreground);
 }
 
-.dark-editor .cm-activeLineGutter{
-  color: #000 !important;
+.dark-editor .cm-activeLineGutter {
+  color: var(--foreground) !important;
 }
 
-.dark-editor .cm-merge-revert{
-  color: hsla(210, 14%, 89%, 1);
+.dark-editor .cm-merge-revert {
+  color: var(--foreground);
 }

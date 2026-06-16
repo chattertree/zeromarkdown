@@ -1,36 +1,56 @@
-import { useEffect } from "react";
+import { useEffect, type ChangeEvent, type ReactNode } from "react";
 import {
-  createDir,
-  BaseDirectory,
-  exists,
-  readTextFile,
-  removeFile,
-  writeTextFile
-} from "@tauri-apps/api/fs";
+  IconNote,
+  IconPin,
+  IconPinnedFilled,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useEditor } from "./provider/EditorProvider";
 import { useNotes } from "./provider/NotesProvider";
-import {
-  FaRegStickyNote,
-  FaRegTrashAlt,
-  FaRegPlusSquare,
-} from "react-icons/fa";
-import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
 import { handleNew, listNotes } from "./utils/fileUtils";
+import {
+  initVault,
+  readVaultFile,
+  removeVaultFile,
+  vaultExists,
+  writeVaultFile,
+} from "./utils/vaultStorage";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInput,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarSeparator,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 type NotesProps = {
   fileName: string;
   changeFileName: (newName: string | undefined) => void;
+  children: ReactNode;
 };
 
 type NoteObj = {
   path: string;
   name: string;
   meta: {
-    isPinned: boolean
+    isPinned: boolean;
   };
-}
+};
 
-const NotesMenu = ({ fileName, changeFileName }: NotesProps) => {
+const NotesMenu = ({ fileName, changeFileName, children }: NotesProps) => {
   const { notes, setNotes } = useNotes();
   const { content, setContent } = useEditor();
 
@@ -38,31 +58,33 @@ const NotesMenu = ({ fileName, changeFileName }: NotesProps) => {
     loadVault();
   }, [content]);
 
-  let loadVault = async () => {
-    const vault = await exists("ZMD", { dir: BaseDirectory.Document });
-    if (!vault) {
-      await createDir("ZMD", { dir: BaseDirectory.Document });
-      const contents = JSON.stringify({ pinned: [] });
-      await writeTextFile('ZMD/config.json', contents, { dir: BaseDirectory.Document });
-      setNotes([]);
-    } else {
-      const vaultFiles = await listNotes();
-      setNotes([...vaultFiles]);
+  const loadVault = async () => {
+    try {
+      const vault = await vaultExists();
+      if (!vault) {
+        await initVault();
+        setNotes([]);
+      } else {
+        const vaultFiles = await listNotes();
+        setNotes([...vaultFiles]);
+      }
+    } catch (error) {
+      console.error("Failed to load vault:", error);
     }
   };
 
   const handleEdit = async (noteName: string) => {
-    const directory = await listNotes();
-    const filePath = directory.find((file) => file.name == `${noteName}.md`);
-    if (filePath != undefined) {
-      const fileContents = await readTextFile(filePath.path);
+    try {
+      const fileContents = await readVaultFile(`${noteName}.md`);
       changeFileName(noteName);
       setContent(fileContents);
+    } catch (error) {
+      console.error("Failed to open note:", error);
     }
   };
 
   const handleDelete = async (noteName: string) => {
-    await removeFile(`ZMD/${noteName}.md`, { dir: BaseDirectory.Document });
+    await removeVaultFile(`${noteName}.md`);
     const directory = await listNotes();
     if (fileName == noteName) {
       changeFileName("Untitled");
@@ -71,69 +93,120 @@ const NotesMenu = ({ fileName, changeFileName }: NotesProps) => {
     setNotes([...directory]);
   };
 
-  const handleSearch = async (e: any) => {
+  const handleSearch = async (e: ChangeEvent<HTMLInputElement>) => {
     const directory = await listNotes();
     const results = directory.filter((file) =>
-      file.name?.toLowerCase()?.includes(e.target.value),
+      file.name?.toLowerCase()?.includes(e.target.value.toLowerCase()),
     );
     setNotes(results);
   };
 
-  const pinNotes = async(action: string, note: NoteObj) => {
-    const pinData = await readTextFile('ZMD/config.json', { dir: BaseDirectory.Document });
-    const data = await JSON.parse(pinData);
-    if(action === 'pin' && !data.pinned.includes(note.name)){
+  const pinNotes = async (action: string, note: NoteObj) => {
+    const pinData = await readVaultFile("config.json");
+    const data = JSON.parse(pinData);
+    if (action === "pin" && !data.pinned.includes(note.name)) {
       data.pinned.push(note.name);
-    }else{
-      data.pinned = data.pinned.filter((n: string) => n !== note.name)
+    } else {
+      data.pinned = data.pinned.filter((n: string) => n !== note.name);
     }
-    await writeTextFile('ZMD/config.json', JSON.stringify(data), { dir: BaseDirectory.Document })
+    await writeVaultFile("config.json", JSON.stringify(data));
     loadVault();
-  }
+  };
 
   return (
-    <div className="side_menu">
-      <div className="side_menu_container">
-        <div className="search_bar">
-          <input
-            type="search"
-            placeholder="Search for your notes"
-            onInput={handleSearch}
-          />
-        </div>
-        <div className="separator"></div>
-        <div
-          className="note"
-          onClick={() => handleNew(setContent, changeFileName)}
-        >
-          <div className="note_data">
-            <FaRegPlusSquare />
-            <p>Create a New Note</p>
+    <TooltipProvider>
+      <SidebarProvider>
+        <Sidebar collapsible="icon">
+          <SidebarHeader>
+            <SidebarInput
+              type="search"
+              placeholder="Search for your notes"
+              onChange={handleSearch}
+            />
+          </SidebarHeader>
+          <SidebarSeparator />
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => handleNew(setContent, changeFileName)}
+                    >
+                      <IconPlus />
+                      <span>Create a New Note</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+            <SidebarGroup>
+              <SidebarGroupLabel>Your Notes</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {notes.map((note: NoteObj) => {
+                    const noteName = note.name.split(".md")[0];
+                    return (
+                      <SidebarMenuItem key={note.path}>
+                        <SidebarMenuButton
+                          onClick={() => handleEdit(noteName)}
+                          isActive={fileName === noteName}
+                        >
+                          <IconNote />
+                          <span>{noteName}</span>
+                        </SidebarMenuButton>
+                        <SidebarMenuAction
+                          showOnHover={!note.meta.isPinned}
+                          className={
+                            note.meta.isPinned
+                              ? "text-yellow-500 opacity-100"
+                              : undefined
+                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            pinNotes(
+                              note.meta.isPinned ? "unpin" : "pin",
+                              note,
+                            );
+                          }}
+                          title={note.meta.isPinned ? "Unpin" : "Pin"}
+                        >
+                          {note.meta.isPinned ? (
+                            <IconPinnedFilled />
+                          ) : (
+                            <IconPin />
+                          )}
+                        </SidebarMenuAction>
+                        <SidebarMenuAction
+                          showOnHover
+                          className="right-7"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(noteName);
+                          }}
+                          title="Delete"
+                        >
+                          <IconTrash />
+                        </SidebarMenuAction>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+          <SidebarRail />
+        </Sidebar>
+        <SidebarInset className="h-svh overflow-hidden">
+          <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+            <SidebarTrigger />
+          </header>
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            {children}
           </div>
-        </div>
-        <p id="notes_title">------Your Notes------</p>
-        <div className="notes_list">
-          {notes.map((note: NoteObj, key: string) => {
-            let noteName = note.name.split(".md")[0];
-            return (
-              <aside
-                className="note"
-                key={key}
-              >
-                <div className="note_data" onClick={() => handleEdit(noteName)}>
-                  <FaRegStickyNote />
-                  <p>{noteName}</p>
-                </div>
-                <div className="note_controls">
-                  {note.meta.isPinned ? <BsPinAngleFill color="yellow" onClick={() => {pinNotes('unpin', note)}} /> : <BsPinAngle onClick={() => {pinNotes('pin', note)}} />}
-                  <FaRegTrashAlt onClick={() => handleDelete(noteName)} />
-                </div>
-              </aside>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </TooltipProvider>
   );
 };
 
