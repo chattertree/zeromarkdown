@@ -51,10 +51,14 @@ const Editor = ({
   const { content, setContent } = useEditor();
   const editorRef = useRef<MDXEditorMethods>(null);
   const { setNotes } = useNotes();
-  const [draftTitle, setDraftTitle] = useState(fileName);
+
+  const baseName = fileName.includes("/") ? fileName.split("/").pop()! : fileName;
+  const folderPrefix = fileName.includes("/") ? fileName.split("/")[0] : "";
+
+  const [draftTitle, setDraftTitle] = useState(baseName);
 
   useEffect(() => {
-    setDraftTitle(fileName);
+    setDraftTitle(baseName);
   }, [fileName]);
 
   useEffect(() => {
@@ -104,10 +108,12 @@ const Editor = ({
   };
 
   const commitTitleChange = async () => {
-    const newName = draftTitle.trim() || "Untitled";
-    setDraftTitle(newName);
+    const newBaseName = draftTitle.trim() || "Untitled";
+    setDraftTitle(newBaseName);
 
-    if (newName === fileName) {
+    const newFullPath = folderPrefix ? `${folderPrefix}/${newBaseName}` : newBaseName;
+
+    if (newFullPath === fileName) {
       return;
     }
 
@@ -116,12 +122,12 @@ const Editor = ({
       await removeVaultFile(`${fileName}.md`);
     }
     await handleSave({
-      fileName: newName,
+      fileName: newFullPath,
       content,
       changeFileName,
       setContent,
     });
-    changeFileName(newName);
+    changeFileName(newFullPath);
     const directory = await listNotes();
     setNotes(directory);
   };

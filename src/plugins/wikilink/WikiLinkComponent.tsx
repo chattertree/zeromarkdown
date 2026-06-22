@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { readVaultFile, vaultFileExists } from "../../utils/vaultStorage";
+import { listVaultMdFiles, readVaultFile, vaultFileExists } from "../../utils/vaultStorage";
 import { useNotes } from "../../provider/NotesProvider";
 import { useEditor } from "../../provider/EditorProvider";
 
@@ -9,19 +9,39 @@ type WikiLinkProps = {
   nodeKey: string;
 };
 
+async function findNoteRelativePath(pageName: string): Promise<string | null> {
+  const directExists = await vaultFileExists(`${pageName}.md`);
+  if (directExists) return pageName;
+
+  const allFiles = await listVaultMdFiles();
+  const match = allFiles.find(
+    (f) => f.name === `${pageName}.md`,
+  );
+  if (match) {
+    return match.folder ? `${match.folder}/${pageName}` : pageName;
+  }
+  return null;
+}
+
 export const WikiLinkComponent = ({ pageName, alias }: WikiLinkProps) => {
   const [showPreview, setShowPreview] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [noteExists, setNoteExists] = useState<boolean | null>(null);
+  const [resolvedPath, setResolvedPath] = useState<string | null>(null);
   const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { setNotes } = useNotes();
   const { setContent } = useEditor();
 
   const checkExists = useCallback(async () => {
     if (noteExists !== null) return noteExists;
-    const exists = await vaultFileExists(`${pageName}.md`);
-    setNoteExists(exists);
-    return exists;
+    const path = await findNoteRelativePath(pageName);
+    if (path) {
+      setNoteExists(true);
+      setResolvedPath(path);
+      return true;
+    }
+    setNoteExists(false);
+    return false;
   }, [pageName, noteExists]);
 
   const handleMouseEnter = async () => {
@@ -29,7 +49,8 @@ export const WikiLinkComponent = ({ pageName, alias }: WikiLinkProps) => {
       const exists = await checkExists();
       if (exists) {
         try {
-          const content = await readVaultFile(`${pageName}.md`);
+          const filePath = resolvedPath || pageName;
+          const content = await readVaultFile(`${filePath}.md`);
           const lines = content.split("\n").slice(0, 6).join("\n");
           setPreview(lines);
         } catch {
@@ -56,10 +77,11 @@ export const WikiLinkComponent = ({ pageName, alias }: WikiLinkProps) => {
 
     const exists = await checkExists();
     if (exists) {
-      const fileContent = await readVaultFile(`${pageName}.md`);
+      const filePath = resolvedPath || pageName;
+      const fileContent = await readVaultFile(`${filePath}.md`);
       setContent(fileContent);
       window.dispatchEvent(
-        new CustomEvent("wikilink-navigate", { detail: { pageName } })
+        new CustomEvent("wikilink-navigate", { detail: { pageName: filePath } })
       );
     } else {
       await import("../../utils/vaultStorage").then(({ writeVaultFile }) =>

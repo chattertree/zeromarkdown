@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "zeromarkdown": {
+      "command": "node",
+      "args": ["./mcp-server/dist/index.js"],
+      "cwd": "/Users/soumyajc/Work/zeromarkdown"
+    }
+  }
+}
