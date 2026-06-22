@@ -1,26 +1,25 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-//@ts-ignore
-import data from "../data/data";
-import { listNotes } from "../utils/fileUtils";
+import { listNotes, NotesTree } from "../utils/fileUtils";
 
 type ChildrenProps = {
   children: React.ReactNode;
 };
 
 type ContextState = {
-  notes: any;
-  setNotes: any;
+  notes: NotesTree;
+  setNotes: React.Dispatch<React.SetStateAction<NotesTree>>;
 };
 
-const initialState = {
-  notes: [],
-  setNotes: () => [],
+const initialState: ContextState = {
+  notes: { rootNotes: [], folders: [] },
+  setNotes: () => {},
 };
 
 const NotesContext = createContext<ContextState>(initialState);
 
 export const NotesProvider = ({ children }: ChildrenProps) => {
-  const [notes, setNotes] = useState<any>([]);
+  const [notes, setNotes] = useState<NotesTree>({ rootNotes: [], folders: [] });
+
   useEffect(() => {
     fetchNotes();
   }, []);
